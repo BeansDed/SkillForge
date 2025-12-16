@@ -1,0 +1,45 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Algo salió mal",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "back": "Volver"
+  },
+  "nav": {
+    "learn": "Aprender",
+    "leaderboards": "Clasificación",
+    "quests": "Misiones",
+    "shop": "Tienda",
+    "profile": "Perfil"
+  },
+  "profile": {
+    "title": "Perfil",
+    "editProfile": "Editar Perfil",
+    "streak": "días de racha!",
+    "keepLearning": "días - ¡sigue aprendiendo!"
+  },
+  "stats": {
+    "xp": "XP",
+    "gems": "Gemas",
+    "hearts": "Corazones",
+    "streak": "Racha"
+  },
+  "leaderboard": {
+    "title": "Clasificación",
+    "yourRank": "Tu Posición",
+    "weekly": "Esta Semana"
+  },
+  "shop": {
+    "title": "Tienda",
+    "buy": "Comprar",
+    "notEnough": "Gemas insuficientes",
+    "purchased": "¡Comprado!"
+  },
+  "lessons": {
+    "complete": "¡Lección Completada!",
+    "xpEarned": "XP Ganado",
+    "streakBonus": "Bonus de Racha"
+  }
+}

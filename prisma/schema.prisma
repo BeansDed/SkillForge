@@ -1,0 +1,229 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  clerkId       String    @unique
+  email         String    @unique
+  username      String    @unique
+  avatarUrl     String?
+  xp            Int       @default(0)
+  gems          Int       @default(500)
+  hearts        Int       @default(5)
+  currentStreak Int       @default(0)
+  lastStudyDate DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  deletedAt          DateTime?
+  trustScore         Int       @default(100)
+  
+  leaderboardEntries LeaderboardEntry[]
+  achievements       UserAchievement[]
+  purchases          UserPurchase[]
+  seasonStats        UserSeasonStats[]
+  activities         Activity[]
+
+  @@index([clerkId])
+  @@index([xp])
+  @@index([currentStreak])
+}
+
+model LeaderboardEntry {
+  id        String   @id @default(uuid())
+  userId    String
+  weekStart DateTime
+  xpEarned  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, weekStart])
+  @@index([weekStart, xpEarned(sort: Desc)])
+}
+
+model Achievement {
+  id          String            @id @default(uuid())
+  name        String            @unique
+  description String
+  iconUrl     String?
+  trigger     String
+  threshold   Int
+  createdAt   DateTime          @default(now())
+  users       UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(uuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
+
+model StoreItem {
+  id        String         @id @default(uuid())
+  type      StoreItemType
+  name      String
+  priceGems Int
+  priceUSD  Float?
+  metadata  Json?
+  isActive  Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  purchases UserPurchase[]
+}
+
+enum StoreItemType {
+  HEART_REFILL
+  STREAK_FREEZE
+  AVATAR_COSMETIC
+  PROFILE_THEME
+}
+
+model UserPurchase {
+  id          String    @id @default(uuid())
+  userId      String
+  storeItemId String
+  purchasedAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storeItem StoreItem @relation(fields: [storeItemId], references: [id])
+
+  @@index([userId, purchasedAt])
+}
+
+model Season {
+  id        String            @id @default(uuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean           @default(false)
+  createdAt DateTime          @default(now())
+  stats     UserSeasonStats[]
+
+  @@index([isActive])
+}
+
+model UserSeasonStats {
+  id         String   @id @default(uuid())
+  userId     String
+  seasonId   String
+  xpEarned   Int      @default(0)
+  league     League   @default(BRONZE)
+  finalRank  Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, seasonId])
+  @@index([seasonId, xpEarned(sort: Desc)])
+}
+
+enum League {
+  BRONZE
+  SILVER
+  GOLD
+  DIAMOND
+}
+
+model Tenant {
+  id           String   @id @default(uuid())
+  name         String
+  domain       String   @unique
+  theme        Json?
+  featureFlags Json?
+  ssoConfig    Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Friendship {
+  id        String   @id @default(uuid())
+  userId    String
+  friendId  String
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+
+  @@unique([userId, friendId])
+  @@index([friendId])
+}
+
+model Activity {
+  id           String   @id @default(uuid())
+  userId       String
+  type         String
+  targetUserId String?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model UserExperiment {
+  id           String   @id @default(uuid())
+  userId       String
+  experimentId String
+  variant      String
+  createdAt    DateTime @default(now())
+
+  @@unique([userId, experimentId])
+}
+
+model Lesson {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  difficulty  Float        @default(1.0)
+  order       Int
+  type        String       @default("MULTIPLE_CHOICE")
+  pluginConfig Json?
+  isPublished Boolean      @default(false)
+  authorId    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  userLessons UserLesson[]
+
+  @@index([isPublished, order])
+}
+
+model UserLesson {
+  id        String   @id @default(uuid())
+  userId    String
+  lessonId  String
+  completed Boolean  @default(false)
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+model Course {
+  id          String   @id @default(uuid())
+  authorId    String
+  title       String
+  description String?
+  priceGems   Int      @default(0)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished, priceGems])
+}

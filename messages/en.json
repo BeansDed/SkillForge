@@ -1,0 +1,45 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "save": "Save",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back"
+  },
+  "nav": {
+    "learn": "Learn",
+    "leaderboards": "Leaderboards",
+    "quests": "Quests",
+    "shop": "Shop",
+    "profile": "Profile"
+  },
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "streak": "day streak!",
+    "keepLearning": "days - keep learning!"
+  },
+  "stats": {
+    "xp": "XP",
+    "gems": "Gems",
+    "hearts": "Hearts",
+    "streak": "Streak"
+  },
+  "leaderboard": {
+    "title": "Leaderboards",
+    "yourRank": "Your Rank",
+    "weekly": "This Week"
+  },
+  "shop": {
+    "title": "Shop",
+    "buy": "Buy",
+    "notEnough": "Not enough gems",
+    "purchased": "Purchased!"
+  },
+  "lessons": {
+    "complete": "Lesson Complete!",
+    "xpEarned": "XP Earned",
+    "streakBonus": "Streak Bonus"
+  }
+}

@@ -1,0 +1,41 @@
+// This file extends the main schema with lesson models
+// Merge into schema.prisma when implementing
+
+model Lesson {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  difficulty  Float      @default(1.0)
+  order       Int
+  isPublished Boolean    @default(false)
+  version     Int        @default(1)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  questions   Question[]
+
+  @@index([isPublished, order])
+}
+
+model Question {
+  id            String       @id @default(uuid())
+  lessonId      String
+  type          QuestionType
+  prompt        String
+  options       Json?
+  correctAnswer String
+  explanation   String?
+  order         Int
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId, order])
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  FILL_BLANK
+  TRUE_FALSE
+}
