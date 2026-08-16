@@ -12,7 +12,11 @@ export const ECONOMY = {
 } as const;
 
 export function calculateStreakMultiplier(streak: number): number {
-  return Math.min(1 + streak * ECONOMY.STREAK_BONUS_PER_DAY, ECONOMY.MAX_STREAK_MULTIPLIER);
+  const safeStreak = Number.isFinite(streak) ? Math.max(0, Math.floor(streak)) : 0;
+  return Math.min(
+    1 + safeStreak * ECONOMY.STREAK_BONUS_PER_DAY,
+    ECONOMY.MAX_STREAK_MULTIPLIER
+  );
 }
 
 export function calculateXP(
@@ -20,12 +24,14 @@ export function calculateXP(
   streak: number,
   baseXP: number = ECONOMY.BASE_XP
 ): number {
+  const safeDifficulty = Number.isFinite(difficulty) ? difficulty : ECONOMY.MIN_DIFFICULTY;
+  const safeBaseXP = Number.isFinite(baseXP) ? Math.max(0, baseXP) : ECONOMY.BASE_XP;
   const clampedDifficulty = Math.max(
     ECONOMY.MIN_DIFFICULTY,
-    Math.min(difficulty, ECONOMY.MAX_DIFFICULTY)
+    Math.min(safeDifficulty, ECONOMY.MAX_DIFFICULTY)
   );
   const streakMultiplier = calculateStreakMultiplier(streak);
-  return Math.round(baseXP * clampedDifficulty * streakMultiplier);
+  return Math.round(safeBaseXP * clampedDifficulty * streakMultiplier);
 }
 
 export interface LessonReward {
@@ -51,19 +57,30 @@ export interface FailurePenalty {
 }
 
 export function applyFailurePenalty(currentHearts: number): FailurePenalty {
-  const heartsLost = currentHearts > 0 ? 1 : 0;
-  const remainingHearts = currentHearts - heartsLost;
+  const safeHearts = Number.isFinite(currentHearts)
+    ? Math.max(0, Math.floor(currentHearts))
+    : 0;
+  const heartsLost = safeHearts > 0 ? 1 : 0;
+  const remainingHearts = safeHearts - heartsLost;
   return { heartsLost, canContinue: remainingHearts > 0 };
 }
 
 export function canRefillHearts(gems: number): boolean {
-  return gems >= ECONOMY.HEART_REFILL_COST;
+  return Number.isFinite(gems) && gems >= ECONOMY.HEART_REFILL_COST;
 }
 
-export function getHeartRegenTime(lastRegenTime: Date): number {
-  const now = new Date();
-  const diff = now.getTime() - lastRegenTime.getTime();
-  const hoursElapsed = diff / (1000 * 60 * 60);
-  const remainingHours = ECONOMY.HEART_REGEN_HOURS - (hoursElapsed % ECONOMY.HEART_REGEN_HOURS);
-  return Math.ceil(remainingHours * 60);
+export function getHeartRegenTime(lastRegenTime: Date, now: Date = new Date()): number {
+  const cycleMs = ECONOMY.HEART_REGEN_HOURS * 60 * 60 * 1000;
+  const elapsedMs = Math.max(0, now.getTime() - lastRegenTime.getTime());
+
+  if (elapsedMs === 0) {
+    return ECONOMY.HEART_REGEN_HOURS * 60;
+  }
+
+  const remainder = elapsedMs % cycleMs;
+  if (remainder === 0) {
+    return 0;
+  }
+
+  return Math.ceil((cycleMs - remainder) / (60 * 1000));
 }
