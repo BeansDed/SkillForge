@@ -11,9 +11,10 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "test": "vitest",
+    "test": "vitest run",
     "test:e2e": "playwright test",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "check": "npm run type-check && npm run lint && npm test"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.3",
